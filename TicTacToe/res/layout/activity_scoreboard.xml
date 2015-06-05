@@ -1,0 +1,175 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scoreboard"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bckgrnd_2"
+    tools:context="${relativePackage}.${activityClass}" >
+
+    <TableLayout
+        android:id="@+id/tableLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" >
+
+        <TableRow>
+
+            <main.tictactoe.CTextView
+                android:id="@+id/empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/wins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+                android:text="@string/wins"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/loses"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+                android:text="@string/loses"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/draws"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame2"
+                android:gravity="center"
+                android:text="@string/draws"
+            />
+        </TableRow>
+
+        <TableRow>
+
+            <main.tictactoe.CTextView
+                android:id="@+id/easy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+                android:text="@string/easy"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/e_wins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/e_loses"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/e_draws"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame2"
+                android:gravity="center"
+            />
+        </TableRow>
+
+        <TableRow>
+
+            <main.tictactoe.CTextView
+                android:id="@+id/medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+                android:text="@string/medium"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/m_wins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/m_loses"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame1"
+                android:gravity="center"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/m_draws"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame2"
+                android:gravity="center"
+            />
+        </TableRow>
+
+        <TableRow>
+
+            <main.tictactoe.CTextView
+                android:id="@+id/hard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame3"
+                android:gravity="center"
+                android:text="@string/hard"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/h_wins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame3"
+                android:gravity="center"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/h_loses"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame3"
+                android:gravity="center"
+            />
+
+            <main.tictactoe.CTextView
+                android:id="@+id/h_draws"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame4"
+                android:gravity="center"
+            />
+        </TableRow>
+    </TableLayout>
+
+    <main.tictactoe.CButton
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="14dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/small_button"
+		android:button="@android:color/transparent"
+		android:text="@string/menu"
+		android:onClick="onClick" />
+
+</RelativeLayout>

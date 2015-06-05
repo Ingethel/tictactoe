@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/end_message_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/message"
+    android:orientation="vertical" >
+    
+    <main.tictactoe.CTextView
+        android:id="@+id/end_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+     />
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" >
+         
+		<main.tictactoe.CButton
+		    android:id="@+id/exit_game"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:background="@drawable/small_button"
+		    android:button="@android:color/transparent"
+		    android:text="@string/exit"
+		/>
+
+		<main.tictactoe.CButton
+		    android:id="@+id/replay"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:background="@drawable/small_button"
+		    android:button="@android:color/transparent"
+		    android:text="@string/replay"
+		/>
+  		
+	</LinearLayout>
+</LinearLayout>
