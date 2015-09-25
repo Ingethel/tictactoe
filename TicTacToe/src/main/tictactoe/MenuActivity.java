@@ -2,8 +2,10 @@ package main.tictactoe;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.View;
 
 /**
@@ -35,6 +37,10 @@ public class MenuActivity extends Activity {
 	 */
 	private static Typeface font;
 	
+	private Display display;
+	
+	private static int width, height;
+	
 	/**
 	 * onCreate implementation,
 	 * 
@@ -48,6 +54,11 @@ public class MenuActivity extends Activity {
 		setContentView(R.layout.activity_menu);
 		settings = Settings.getInstance(getApplicationContext());
 		score = Scoreboard.getInstance(getApplicationContext());
+		display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		width = size.x;
+		height = size.y;
 	}
 
 	/**
@@ -86,6 +97,14 @@ public class MenuActivity extends Activity {
 	 */
 	public static Typeface getApplicationFont(){
 		return MenuActivity.font;
+	}
+	
+	public static int getWidth(){
+		return MenuActivity.width;
+	}
+	
+	public static int getHeight(){
+		return MenuActivity.height;
 	}
 	
 	/**

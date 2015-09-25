@@ -1,0 +1,222 @@
+package source;
+
+import uk.ac.surrey.sa00328.R;
+import android.content.Context;
+import android.graphics.Color;
+import android.util.AttributeSet;
+import android.widget.Button;
+
+/**
+ * in this class we create the blocks that will be used in the game class.
+ * 
+ * @author Stavros
+ * 
+ *         the hole project is designed for android 2.1 and it does not support
+ *         onTouch events since it is destined to be tested on the emulator
+ * 
+ */
+public class Block extends Button {
+
+	// states if the block is covered
+	private boolean isCovered;
+	// states if the block hides a mine
+	private boolean isMined;
+	// stated if the block has been flagged
+	private boolean isFlagged;
+	// stated if the block can be clicked
+	private boolean isClickable;
+	// states the number of mines in surrounding blocks
+	private int minesSurrounding;
+
+	public Block(Context context) {
+		super(context);
+	}
+
+	public Block(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
+
+	public Block(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+	}
+
+	/**
+	 * set default values for the attributed of the block
+	 */
+	public void setDefaults() {
+		isCovered = true;
+		isMined = false;
+		isFlagged = false;
+		isClickable = true;
+		minesSurrounding = 0;
+		this.setBackgroundResource(R.drawable.grey_block);
+	}
+
+	/**
+	 * sets the number of surrounding mines in the block
+	 * 
+	 * @param number
+	 */
+	public void setNumberOfSurroundingMines(int number) {
+		this.setBackgroundResource(R.drawable.block_0);
+		updateNumber(number);
+	}
+
+	/**
+	 * reveals the mine underneath when the block is enabled
+	 * 
+	 * @param enabled
+	 */
+	public void setMineIcon(boolean enabled) {
+		this.setBackgroundResource(R.drawable.mine);
+	}
+
+	/**
+	 * flags the block when enabled
+	 * 
+	 * @param enabled
+	 */
+	public void setFlagIcon(boolean enabled) {
+		this.setBackgroundResource(R.drawable.flag);
+	}
+
+	/**
+	 * recovers the block if needed ( used when passing from default to flagged
+	 * or from flagged to default )
+	 * 
+	 * @param disabled
+	 */
+	public void setBlockAsDisabled(boolean disabled) {
+		if (!disabled) {
+			this.setBackgroundResource(Color.TRANSPARENT);
+		} else {
+			this.setBackgroundResource(R.drawable.grey_block);
+		}
+	}
+
+	/**
+	 * reveals what hides the block
+	 */
+	public void OpenBlock() {
+		// cannot uncover a mine which is not covered
+		if (!isCovered)
+			return;
+
+		setBlockAsDisabled(false);
+		isCovered = false;
+
+		// check if it has mine
+		if (hasMine()) {
+			setMineIcon(true);
+		}
+		// update with the nearby mine count
+		else {
+			setNumberOfSurroundingMines(minesSurrounding);
+		}
+	}
+
+	/**
+	 * sets the number and its color on the block indicating the amount of
+	 * surrounding mines
+	 * 
+	 * @param text
+	 */
+	public void updateNumber(int text) {
+		if (text != 0) {
+			this.setText(Integer.toString(text));
+
+			// select different color for each number
+			// we have already skipped 0 mine count
+			switch (text) {
+			case 1:
+				this.setTextColor(Color.BLUE);
+				break;
+			case 2:
+				this.setTextColor(Color.rgb(0, 100, 0));
+				break;
+			case 3:
+				this.setTextColor(Color.RED);
+				break;
+			case 4:
+				this.setTextColor(Color.rgb(153, 50, 204));
+				break;
+			}
+		}
+	}
+
+	/**
+	 * plants a mine
+	 */
+	public void plantMine() {
+		isMined = true;
+	}
+
+	/**
+	 * @return if the block has a mine or not
+	 */
+	public boolean hasMine() {
+		return isMined;
+	}
+
+	/**
+	 * triggers the mine
+	 */
+	public void triggerMine() {
+		setMineIcon(true);
+	}
+
+	/**
+	 * @return if block is covered or not
+	 */
+	public boolean isCovered() {
+		return isCovered;
+	}
+
+	/**
+	 * sets the number of surrounding mines
+	 * 
+	 * @param number
+	 */
+	public void setNumberOfMinesInSurrounding(int number) {
+		minesSurrounding = number;
+	}
+
+	/**
+	 * @return number of surrounding mines
+	 */
+	public int getNumberOfMinesInSorrounding() {
+		return minesSurrounding;
+	}
+
+	/**
+	 * @return if block is flagged or not
+	 */
+	public boolean isFlagged() {
+		return isFlagged;
+	}
+
+	/**
+	 * sets the a flag to the block, or removes it
+	 * 
+	 * @param flagged
+	 */
+	public void setFlagged(boolean flagged) {
+		isFlagged = flagged;
+	}
+
+	/**
+	 * @return if the block can be clicked
+	 */
+	public boolean isClickable() {
+		return isClickable;
+	}
+
+	/**
+	 * makes the block clickable or un-clicable
+	 * 
+	 * @param clickable
+	 */
+	public void setClickable(boolean clickable) {
+		isClickable = clickable;
+	}
+}

@@ -73,25 +73,64 @@ public class GameActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
-
+/*
+		int id = R.id.button1;
+		for(int i = 0; i < 9; i++){
+			buttons[i] = (CButton) findViewById(id);
+			id++;
+		}
+*/	
+		int size;
+		if(MenuActivity.getWidth() < MenuActivity.getHeight())
+			size = MenuActivity.getWidth();
+		else
+			size = MenuActivity.getHeight();
+		size = 2*size/9;
+		
 		CB1 = (CButton) findViewById(R.id.button1);
 		buttons[0] = CB1;
+		buttons[0].setWidth(size);
+		buttons[0].setHeight(size);
+		
 		CB2 = (CButton) findViewById(R.id.button2);
 		buttons[1] = CB2;
+		buttons[1].setWidth(size);
+		buttons[1].setHeight(size);
+		
 		CB3 = (CButton) findViewById(R.id.button3);
 		buttons[2] = CB3;
+		buttons[2].setWidth(size);
+		buttons[2].setHeight(size);
+		
 		CB4 = (CButton) findViewById(R.id.button4);
 		buttons[3] = CB4;
+		buttons[3].setWidth(size);
+		buttons[3].setHeight(size);
+		
 		CB5 = (CButton) findViewById(R.id.button5);
 		buttons[4] = CB5;
+		buttons[4].setWidth(size);
+		buttons[4].setHeight(size);
+		
 		CB6 = (CButton) findViewById(R.id.button6);
 		buttons[5] = CB6;
+		buttons[5].setWidth(size);
+		buttons[5].setHeight(size);
+		
 		CB7 = (CButton) findViewById(R.id.button7);
 		buttons[6] = CB7;
+		buttons[6].setWidth(size);
+		buttons[6].setHeight(size);
+		
 		CB8 = (CButton) findViewById(R.id.button8);
 		buttons[7] = CB8;
+		buttons[7].setWidth(size);
+		buttons[7].setHeight(size);
+		
 		CB9 = (CButton) findViewById(R.id.button9);
 		buttons[8] = CB9;
+		buttons[8].setWidth(size);
+		buttons[8].setHeight(size);
 		
 		TURN_TEXT = (CTextView) findViewById(R.id.cTextView1);
 		TURN_TEXT.setValues(null, 0, 20);

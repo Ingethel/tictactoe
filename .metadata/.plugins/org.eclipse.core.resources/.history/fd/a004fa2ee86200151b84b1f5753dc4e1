@@ -1,0 +1,65 @@
+package source;
+
+import source.R;
+import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
+
+/**
+ * the about class is a pop up activity that is called by the menu, explaining
+ * the nature of the game ( minesweeper ). it kills it self after a specified
+ * time
+ * 
+ * @author Stavros
+ * 
+ *         the hole project is designed for android 2.1 and it does not support
+ *         onTouch events since it is destined to be tested on the emulator
+ * 
+ */
+public class About extends Activity {
+
+	// time handler and counter
+	private Handler timer = new Handler();
+	private int secondsPassed;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.about);
+		startTimer();
+	}
+
+	/**
+	 * a timer counter that starts when the activity is called
+	 */
+	public void startTimer() {
+		if (secondsPassed == 0) {
+			timer.removeCallbacks(updateTimeElasped);
+			// tell timer to run call back after 1 second
+			timer.postDelayed(updateTimeElasped, 1000);
+		}
+	}
+
+	/**
+	 * keeps the timer updated
+	 */
+	private Runnable updateTimeElasped = new Runnable() {
+		public void run() {
+			long currentMilliseconds = System.currentTimeMillis();
+			++secondsPassed;
+
+			// add notification
+			timer.postAtTime(this, currentMilliseconds);
+			// notify to call back after 1 seconds
+			// basically to remain in the timer loop
+			timer.postDelayed(updateTimeElasped, 1000);
+
+			// kill activity after 10 seconds
+			if (secondsPassed == 10) {
+				finish();
+			}
+		}
+
+	};
+
+}

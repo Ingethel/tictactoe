@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename Java project &apos;sa00328_COM1032&apos; to &apos;minesweeper&apos;&#x0D;&#x0A;- Original element: &apos;sa00328_COM1032&apos;&#x0D;&#x0A;- Renamed element: &apos;sa00328_COM1032&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename Java project &apos;sa00328_COM1032&apos;" flags="7" id="org.eclipse.jdt.ui.rename.java.project" input="=sa00328_COM1032" name="minesweeper" references="true" stamp="1443118016618" version="1.0"/>
+</session>

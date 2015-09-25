@@ -1,0 +1,628 @@
+package minesweeper.main;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import minesweeper.main.R;
+import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TableRow.LayoutParams;
+import android.widget.TextView;
+import android.widget.Toast;
+
+/**
+ * this class is the runnable game. it contains creation of the mine field,
+ * counters for mines and time, onClick handlers
+ * 
+ * @author Stavros
+ * 
+ */
+public class Game extends Activity implements OnClickListener {
+
+	/**
+	 *  Image button
+	 */
+	private ImageButton smileyButton;
+
+	/**
+	 *  Mine field layout
+	 */
+	private TableLayout mineField;
+	
+	/**
+	 *  Mine field size (square)
+	 */
+	private int sizeOfField = 9;
+	
+	/**
+	 *  Number of total mines
+	 */
+	private int totalNumberOfMines = 15;
+	
+	/**
+	 *  Number of remaining mines
+	 */
+	private int remainingMines;
+	
+	/**
+	 *  Remaining mines display
+	 */
+	private TextView mineCounter;
+
+	/**
+	 *  Check if mines are planted
+	 */
+	private boolean areMinesSet;
+
+	/**
+	 *  Array for mine field
+	 */
+	private Block blocks[][];
+	
+	/**
+	 *  Block size
+	 */
+	private int blockSize = 24;
+	
+	/**
+	 * Block padding
+	 */
+	private int blockPadding = 2;
+
+	/**
+	 *  Time handler
+	 */
+	private Handler timer = new Handler();
+	
+	/**
+	 *  Time passed
+	 */
+	private int secondsPassed = 0;
+	
+	/**
+	 *  Time display
+	 */
+	private TextView timeCounter;
+	
+	/**
+	 *  Check if timer already started
+	 */
+	private boolean isTimerStarted;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.game);
+
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		blockSize = size.x / 12;
+
+		mineCounter = (TextView) findViewById(R.id.MineCount);
+		timeCounter = (TextView) findViewById(R.id.Timer);
+
+		smileyButton = (ImageButton) findViewById(R.id.smiley);
+		smileyButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				endExistingGame();
+				startNewGame();
+			}
+		});
+
+		View menuButton = findViewById(R.id.menu_button);
+		menuButton.setOnClickListener(this);
+
+		mineField = (TableLayout) findViewById(R.id.MineField);
+
+		showDialog("Click smiley to start New Game", 2000, true, false);
+	}
+
+	/**
+	 * onClick handler for the menu button
+	 */
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.menu_button:
+			finish();
+		}
+	}
+
+	/**
+	 * start a new game
+	 */
+	private void startNewGame() {
+		// plant mines
+		createMineField();
+		// display field
+		showMineField();
+
+		remainingMines = totalNumberOfMines;
+		secondsPassed = 0;
+	}
+
+	/**
+	 * visualize the field
+	 */
+	private void showMineField() {
+
+		for (int row = 1; row < sizeOfField + 1; row++) {
+			// create a tableRow and set its layout parameters
+			TableRow tableRow = new TableRow(this);
+			tableRow.setLayoutParams(new LayoutParams(
+					(blockSize + 2 * blockPadding) * sizeOfField, blockSize + 2
+							* blockPadding));
+			// add blocks to the above object
+			for (int column = 1; column < sizeOfField + 1; column++) {
+				blocks[row][column].setLayoutParams(new LayoutParams(blockSize
+						+ 2 * blockPadding, blockSize + 2 * blockPadding));
+				blocks[row][column].setPadding(blockPadding, blockPadding,
+						blockPadding, blockPadding);
+				tableRow.addView(blocks[row][column]);
+			}
+			mineField.addView(tableRow, new TableLayout.LayoutParams(
+					(blockSize + 2 * blockPadding) * sizeOfField, blockSize + 2
+							* blockPadding));
+		}
+
+	}
+
+	/**
+	 * a method to end the existing game
+	 */
+	private void endExistingGame() {
+		// stop timer
+		stopTimer();
+
+		// reset counters
+		timeCounter.setText("000");
+		mineCounter.setText("000");
+
+		// reset smiley button
+		smileyButton.setBackgroundResource(R.drawable.smiley);
+
+		// remove all rows from mineField TableLayout
+		mineField.removeAllViews();
+
+		// set all variables to support end of game
+		isTimerStarted = false;
+		areMinesSet = false;
+		remainingMines = 0;
+	}
+
+	/**
+	 * create the mine field
+	 * 
+	 * handlers for short and long clicks
+	 */
+	private void createMineField() {
+
+		blocks = new Block[sizeOfField + 2][sizeOfField + 2];
+
+		for (int row = 1; row < sizeOfField + 1; row++) {
+			for (int column = 1; column < sizeOfField + 1; column++) {
+				blocks[row][column] = new Block(this);
+				blocks[row][column].setDefaults();
+
+				final int currentRow = row;
+				final int currentColumn = column;
+
+				// add Click Listener
+				blocks[row][column].setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View view) {
+
+						// start timer on first click
+						if (!isTimerStarted) {
+							startTimer();
+							isTimerStarted = true;
+						}
+
+						// set mines on first click
+						if (!areMinesSet) {
+							setMines(currentRow, currentColumn);
+							areMinesSet = true;
+						}
+
+						// check if block can be clicked
+						if (blocks[currentRow][currentColumn].isClickable()) {
+
+							// check if block is flagged
+							// ( if it is then clicks are handled by long clicks
+							// )
+							if (!blocks[currentRow][currentColumn].isFlagged()) {
+
+								// open nearby blocks till we get a numbered
+								// block
+								rippleUncover(currentRow, currentColumn);
+
+								// check if the clicked block has a mine
+								if (blocks[currentRow][currentColumn].hasMine()) {
+									// if it does, then it's a lose
+									finishGame(currentRow, currentColumn);
+								}
+
+								// check if it's a win
+								// ( if all blocks without mine are opened )
+								if (checkGameWin()) {
+									winGame();
+								}
+							}
+						}
+					}
+				});
+
+				// add Long Click listener
+				blocks[row][column]
+						.setOnLongClickListener(new OnLongClickListener() {
+							@Override
+							public boolean onLongClick(View view) {
+
+								// check if block can be clicked
+								if (blocks[currentRow][currentColumn]
+										.isClickable()) {
+
+									// default to flag
+									if (!blocks[currentRow][currentColumn]
+											.isFlagged()) {
+										blocks[currentRow][currentColumn]
+												.setBlockAsDisabled(false);
+										blocks[currentRow][currentColumn]
+												.setFlagIcon(true);
+										blocks[currentRow][currentColumn]
+												.setFlagged(true);
+
+										// update and display mine counter
+										remainingMines--;
+										updateMineCountDisplay();
+									}
+
+									// flag to default
+									else if (blocks[currentRow][currentColumn]
+											.isFlagged()) {
+										blocks[currentRow][currentColumn]
+												.setBlockAsDisabled(true);
+										blocks[currentRow][currentColumn]
+												.setFlagged(false);
+
+										// update and display mine counter
+										remainingMines++;
+										updateMineCountDisplay();
+
+									}
+
+								}
+
+								return true;
+							}
+						});
+			}
+		}
+	}
+
+	/**
+	 * checks if the game can continue, it runs after every short click
+	 * 
+	 * @return
+	 */
+	private boolean checkGameWin() {
+
+		// check if there is still a covered block without mine
+		for (int row = 1; row < sizeOfField + 1; row++) {
+			for (int column = 1; column < sizeOfField + 1; column++) {
+				if (!blocks[row][column].hasMine()
+						&& blocks[row][column].isCovered()) {
+					return false;
+				}
+			}
+		}
+
+		// if there isn't it's a win
+		return true;
+	}
+
+	/**
+	 * keeps the user updated for the remaining mines in the field
+	 */
+	private void updateMineCountDisplay() {
+		// display number of mines that are yet to be found
+		if (remainingMines < 10) {
+			mineCounter.setText("00" + Integer.toString(remainingMines));
+		} else if (remainingMines < 100) {
+			mineCounter.setText("0" + Integer.toString(remainingMines));
+		} else {
+			mineCounter.setText(Integer.toString(remainingMines));
+		}
+	}
+
+	/**
+	 * runs when the game is over and it's a win
+	 */
+	private void winGame() {
+
+		// stop the timer
+		stopTimer();
+		isTimerStarted = false;
+
+		// set mine count to 0 and display it
+		remainingMines = 0;
+		updateMineCountDisplay();
+
+		// change smiley to represent a winning game
+		smileyButton.setBackgroundResource(R.drawable.smiley_win);
+
+		// disable all buttons
+		for (int row = 1; row < sizeOfField + 1; row++) {
+			for (int column = 1; column < sizeOfField + 1; column++) {
+				blocks[row][column].setClickable(false);
+			}
+		}
+
+		// show message
+		showDialog("You won in " + Integer.toString(secondsPassed)
+				+ " seconds!", 1000, false, true);
+	}
+
+	/**
+	 * runs when the game is over and it's lose
+	 * 
+	 * @param currentRow
+	 * @param currentColumn
+	 */
+	private void finishGame(int currentRow, int currentColumn) {
+
+		// stop timer
+		stopTimer();
+		isTimerStarted = false;
+
+		// set smiley to represent a lose
+		smileyButton.setBackgroundResource(R.drawable.smiley_dead);
+
+		// trigger mine
+		blocks[currentRow][currentColumn].triggerMine();
+
+		for (int row = 1; row < sizeOfField + 1; row++) {
+			for (int column = 1; column < sizeOfField + 1; column++) {
+
+				// disable block
+				blocks[row][column].setClickable(false);
+
+				// block that has mine and is not flagged
+				if (blocks[row][column].hasMine()
+						&& !blocks[row][column].isFlagged()) {
+					// set mine icon
+					blocks[row][column].setBackgroundResource(R.drawable.mine);
+				}
+
+				// block is flagged and doesn't not have mine
+				if (!blocks[row][column].hasMine()
+						&& blocks[row][column].isFlagged()) {
+					// set wrong flag icon
+					blocks[row][column]
+							.setBackgroundResource(R.drawable.wrong_flag);
+				}
+
+			}
+
+		}
+
+		// show message
+		showDialog("You tried for " + Integer.toString(secondsPassed)
+				+ " seconds!", 1000, false, false);
+
+	}
+
+	/**
+	 * set the mines in the field, runs on the first click
+	 * 
+	 * @param currentRow
+	 * @param currentColumn
+	 */
+	private void setMines(int currentRow, int currentColumn) {
+
+		/*
+		 * Place mines randomly in the field
+		 */
+
+		// seed random generator
+		Random rand = new Random(System.currentTimeMillis());
+		// random location
+		int mineRow, mineColumn;
+		// current number of mines planted
+		int minesPlanted = 0;
+
+		// loop generating random location for mines
+		while (minesPlanted < totalNumberOfMines) {
+			// get random location
+			mineRow = rand.nextInt(sizeOfField);
+			mineColumn = rand.nextInt(sizeOfField);
+			// check for already mined locations
+			if (!blocks[mineColumn + 1][mineRow + 1].hasMine()) {
+				blocks[mineColumn + 1][mineRow + 1].plantMine();
+				minesPlanted++;
+			}
+		}
+
+		/*
+		 * set the number of surrounding mines in the block
+		 */
+
+		// mine count of surrounding for current location
+		int nearbyMineCount;
+
+		// loop through field
+		for (int row = 1; row < sizeOfField + 1; row++) {
+			for (int column = 1; column < sizeOfField + 1; column++) {
+				// reset mine count
+				nearbyMineCount = 0;
+				// check in surrounding blocks
+				for (int previousRow = -1; previousRow < 2; previousRow++) {
+					for (int previousColumn = -1; previousColumn < 2; previousColumn++) {
+						if (blocks[row + previousRow][column + previousColumn]
+								.hasMine()) {
+							// increase counter
+							nearbyMineCount++;
+						}
+					}
+				}
+				// set the number
+				blocks[row][column]
+						.setNumberOfMinesInSurrounding(nearbyMineCount);
+			}
+
+		}
+
+	}
+
+	/**
+	 * recursive method to uncover the clicked block and all surrounding until
+	 * it uncovers one with a mine in its surrounding
+	 * 
+	 * @param rowClicked
+	 * @param columnClicked
+	 */
+	private void rippleUncover(int rowClicked, int columnClicked) {
+
+		// if it's not covered don't do anything
+		if (!blocks[rowClicked][columnClicked].isCovered()) {
+			return;
+		}
+
+		// don't open flagged or mined blocks
+		if (blocks[rowClicked][columnClicked].hasMine()
+				|| blocks[rowClicked][columnClicked].isFlagged()) {
+			return;
+		}
+
+		// open clicked block
+		blocks[rowClicked][columnClicked].OpenBlock();
+		// set it to un-clickable
+		blocks[rowClicked][columnClicked].setClickable(false);
+
+		// if clicked block have nearby mines then don't open further
+		if (blocks[rowClicked][columnClicked].getNumberOfMinesInSorrounding() != 0) {
+			return;
+		}
+
+		// make transparent the blocks with that have no mine in their
+		// surrounding
+		if (blocks[rowClicked][columnClicked].getNumberOfMinesInSorrounding() == 0) {
+			blocks[rowClicked][columnClicked]
+					.setBackgroundColor(Color.TRANSPARENT);
+		}
+
+		// open blocks until we find numbered ones
+		for (int row = rowClicked - 1; row <= rowClicked + 1; row++) {
+			for (int column = columnClicked - 1; column <= columnClicked + 1; column++) {
+				// check if in field bounds
+				if ((row > 0) && (column > 0) && (row < sizeOfField + 1)
+						&& (column < sizeOfField + 1)) {
+					rippleUncover(row, column);
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * starts the timer, runs at initialisation
+	 */
+	public void startTimer() {
+		if (secondsPassed == 0) {
+			timer.removeCallbacks(updateTimeElasped);
+			// tell timer to run call back after 1 second
+			timer.postDelayed(updateTimeElasped, 1000);
+		}
+	}
+
+	/**
+	 * stops the timer, runs when the game is over
+	 */
+	public void stopTimer() {
+		// disable call backs
+		timer.removeCallbacks(updateTimeElasped);
+	}
+
+	/**
+	 * keeps timer updated
+	 */
+	private Runnable updateTimeElasped = new Runnable() {
+		@Override
+		public void run() {
+			long currentMilliseconds = System.currentTimeMillis();
+			++secondsPassed;
+			if (secondsPassed < 10) {
+				timeCounter.setText("00" + Integer.toString(secondsPassed));
+			} else if (secondsPassed < 100) {
+				timeCounter.setText("0" + Integer.toString(secondsPassed));
+			} else {
+				timeCounter.setText(Integer.toString(secondsPassed));
+			}
+			// add notification
+			timer.postAtTime(this, currentMilliseconds);
+			// notify to call back after 1 seconds
+			timer.postDelayed(updateTimeElasped, 1000);
+		}
+	};
+
+	/**
+	 * a pop up dialog at the start and end of the game
+	 * 
+	 * @param message
+	 * @param milliseconds
+	 * @param useSmileImage
+	 * @param useCoolImage
+	 */
+	private void showDialog(String message, int milliseconds,
+			boolean useSmileImage, boolean useCoolImage) {
+		// show message
+		Toast dialog = Toast.makeText(getApplicationContext(), message,
+				Toast.LENGTH_LONG);
+
+		dialog.setGravity(Gravity.CENTER, 0, 0);
+		LinearLayout dialogView = (LinearLayout) dialog.getView();
+		ImageView coolImage = new ImageView(getApplicationContext());
+		if (useSmileImage) {
+			coolImage.setImageResource(R.drawable.smiley);
+		} else if (useCoolImage) {
+			coolImage.setImageResource(R.drawable.smiley_win);
+		} else {
+			coolImage.setImageResource(R.drawable.smiley_dead);
+		}
+		dialogView.addView(coolImage, 0);
+		dialog.setDuration(milliseconds);
+		dialog.show();
+	}
+
+	public void Solver(){
+		List<Block> covered = new ArrayList<Block>();
+		List<Block> uncovered = new ArrayList<Block>();
+		for (int row = 1; row < sizeOfField + 1; row++) {
+			for (int column = 1; column < sizeOfField + 1; column++) {
+				if(blocks[row][column].isCovered()){
+					covered.add(blocks[row][column]);
+				}
+				else if(blocks[row][column].getNumberOfMinesInSorrounding() > 0){
+					uncovered.add(blocks[row][column]);
+				}
+			}
+		}
+	}
+	
+}
